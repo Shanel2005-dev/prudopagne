@@ -24,13 +24,13 @@ export default class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#FDF8F0] flex items-center justify-center px-4">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center max-w-sm">
-            <h1 className="text-xl font-extrabold text-gray-800 mb-2">Un problème d'affichage est survenu</h1>
-            <p className="text-gray-500 mb-6">Rechargez la page pour continuer.</p>
+        <div className="min-h-screen bg-[#FFF9F3] flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-8 text-center max-w-sm">
+            <h1 className="font-display text-xl text-[#1C1C1C] mb-2">Un problème d'affichage est survenu</h1>
+            <p className="text-[#5A5A5A] mb-6">Rechargez la page pour continuer.</p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-[#9A3412] text-white px-5 py-3 rounded-xl font-bold hover:bg-[#7C2D12] transition-colors inline-flex items-center gap-2"
+              className="bg-[#8B1E3F] text-[#FFF9F3] px-5 py-3 rounded-full font-medium tracking-wide hover:bg-[#6E1732] transition-colors inline-flex items-center gap-2"
             >
               <RefreshCw size={16} /> Recharger la page
             </button>

@@ -48,4 +48,4 @@ create policy "Admin gère les photos" on product_photos for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 -- Catégories de départ
-insert into categories (nom) values ('Pagne'), ('Bazin'), ('Guipure / Dentelle'), ('Autre');
+insert into categories (nom) values ('Wax'), ('Bazin'), ('Guipure'), ('Dentelle'), ('Tissus');

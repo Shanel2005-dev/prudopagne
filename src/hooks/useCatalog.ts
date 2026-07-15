@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Category, ProductWithPhotos } from '../types';
+import { DEMO_CATEGORIES, DEMO_PRODUCTS } from '../data/demoData';
 
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -8,8 +9,8 @@ export function useCategories() {
 
   const reload = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from('categories').select('*').order('nom');
-    setCategories(data ?? []);
+    const { data, error } = await supabase.from('categories').select('*').order('nom');
+    setCategories(error && import.meta.env.DEV ? DEMO_CATEGORIES : (data ?? []));
     setLoading(false);
   }, []);
 
@@ -26,11 +27,11 @@ export function useProducts() {
 
   const reload = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('products')
       .select('*, category:categories(*), photos:product_photos(*)')
       .order('created_at', { ascending: false });
-    setProducts((data as ProductWithPhotos[]) ?? []);
+    setProducts(error && import.meta.env.DEV ? DEMO_PRODUCTS : ((data as ProductWithPhotos[]) ?? []));
     setLoading(false);
   }, []);
 
@@ -53,8 +54,9 @@ export function useProduct(id: string | undefined) {
       .select('*, category:categories(*), photos:product_photos(*)')
       .eq('id', id)
       .single()
-      .then(({ data }) => {
-        setProduct((data as ProductWithPhotos) ?? null);
+      .then(({ data, error }) => {
+        const demo = DEMO_PRODUCTS.find((p) => p.id === id);
+        setProduct(error && import.meta.env.DEV && demo ? demo : ((data as ProductWithPhotos) ?? null));
         setLoading(false);
       });
   }, [id]);

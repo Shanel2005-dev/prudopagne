@@ -1,4 +1,10 @@
 @import "tailwindcss";
+
+@theme {
+  --font-display: 'Fraunces', 'Georgia', serif;
+  --font-sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
 * { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 #root { min-height: 100vh; }
