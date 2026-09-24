@@ -15,9 +15,9 @@ export default function AdminHistoryPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8 md:p-10 max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-display text-3xl text-[#1C1C1C]">Historique des ventes</h1>
+      <div className="p-4 sm:p-6 md:p-10 max-w-6xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
+          <h1 className="font-display text-2xl sm:text-3xl text-[#1C1C1C]">Historique des ventes</h1>
           <p className="text-[#5A5A5A] text-sm">
             <span className="font-display text-xl text-[#8B1E3F]">{total.toLocaleString()} F</span> · {ventes.length} vente{ventes.length > 1 ? 's' : ''}
           </p>
@@ -31,7 +31,7 @@ export default function AdminHistoryPage() {
           ) : (
             <div className="divide-y divide-[#8B1E3F]/8">
               {ventes.map((p) => (
-                <div key={p.id} className="flex items-center gap-4 p-4">
+                <div key={p.id} className="flex items-center gap-3 sm:gap-4 p-4">
                   <img src={p.photos[0]?.url} alt="" className="w-14 h-14 rounded-lg object-cover bg-[#F3E9DE] shrink-0 grayscale opacity-70" />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-[#1C1C1C] truncate">{p.designation}</p>

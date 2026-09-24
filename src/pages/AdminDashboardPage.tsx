@@ -71,8 +71,8 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8 md:p-10 max-w-6xl">
-        <h1 className="font-display text-3xl text-[#1C1C1C] mb-8">Vue d'ensemble</h1>
+      <div className="p-4 sm:p-6 md:p-10 max-w-6xl">
+        <h1 className="font-display text-2xl sm:text-3xl text-[#1C1C1C] mb-6 sm:mb-8">Vue d'ensemble</h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           <StatCard icon={Package} label="Pagnes en stock" value={String(stats.count)} />
@@ -85,7 +85,7 @@ export default function AdminDashboardPage() {
           <p className="text-[#A89A8E]">Chargement…</p>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            <div className="lg:col-span-2 bg-white rounded-2xl border border-[#8B1E3F]/10 p-6">
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-[#8B1E3F]/10 p-4 sm:p-6">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                 <div>
                   <p className="font-display text-lg text-[#1C1C1C] mb-1">Évolution des ventes</p>
@@ -120,7 +120,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-6">
+            <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-4 sm:p-6">
               <p className="font-display text-lg text-[#1C1C1C] mb-1">Stock par catégorie</p>
               <p className="text-[#5A5A5A] text-sm mb-5">Pagnes disponibles</p>
               {stock.length === 0 ? (

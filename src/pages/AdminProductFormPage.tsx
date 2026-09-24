@@ -130,8 +130,8 @@ export default function AdminProductFormPage() {
           <ChevronLeft size={16} /> Retour aux produits
         </Link>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-7 space-y-5">
-          <h1 className="font-display text-2xl text-[#1C1C1C]">{isEdit ? 'Modifier le pagne' : 'Ajouter un pagne'}</h1>
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-4 sm:p-7 space-y-5">
+          <h1 className="font-display text-xl sm:text-2xl text-[#1C1C1C]">{isEdit ? 'Modifier le pagne' : 'Ajouter un pagne'}</h1>
 
           {error && <p className="bg-red-50 text-red-700 text-sm rounded-lg p-3">{error}</p>}
 
@@ -142,7 +142,7 @@ export default function AdminProductFormPage() {
               className="w-full px-3.5 py-2.5 rounded-lg border border-[#8B1E3F]/15 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F]/25" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-1.5">Prix (FCFA) *</label>
               <input required type="number" min="1" step="1" value={prix} onChange={(e) => setPrix(e.target.value)}

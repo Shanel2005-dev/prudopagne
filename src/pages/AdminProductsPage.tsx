@@ -24,12 +24,12 @@ export default function AdminProductsPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8 md:p-10 max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-display text-3xl text-[#1C1C1C]">Produits</h1>
+      <div className="p-4 sm:p-6 md:p-10 max-w-6xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <h1 className="font-display text-2xl sm:text-3xl text-[#1C1C1C]">Produits</h1>
           <Link
             to="/admin/produits/nouveau"
-            className="flex items-center gap-2 bg-[#8B1E3F] text-[#FFF9F3] px-5 py-2.5 rounded-full text-sm font-semibold tracking-wide hover:bg-[#6E1732] transition-colors"
+            className="flex items-center justify-center gap-2 bg-[#8B1E3F] text-[#FFF9F3] px-5 py-2.5 rounded-full text-sm font-semibold tracking-wide hover:bg-[#6E1732] transition-colors"
           >
             <Plus size={16} /> Ajouter un pagne
           </Link>
@@ -43,7 +43,7 @@ export default function AdminProductsPage() {
           ) : (
             <div className="divide-y divide-[#8B1E3F]/8">
               {products.map((p) => (
-                <div key={p.id} className="flex items-center gap-4 p-4">
+                <div key={p.id} className="flex flex-wrap items-center gap-3 sm:gap-4 p-4">
                   <img src={p.photos[0]?.url} alt="" className="w-14 h-14 rounded-lg object-cover bg-[#F3E9DE] shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-[#1C1C1C] truncate">{p.designation}</p>
@@ -52,7 +52,7 @@ export default function AdminProductsPage() {
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${p.statut === 'vendu' ? 'bg-[#F3E9DE] text-[#5A5A5A]' : 'bg-green-50 text-green-700'}`}>
                     {p.statut === 'vendu' ? 'Vendu' : 'Disponible'}
                   </span>
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0 ml-auto">
                     <button onClick={() => toggleStatut(p.id, p.statut)} title={p.statut === 'vendu' ? 'Remettre en stock' : 'Marquer vendu'}
                       className="p-2 rounded-lg text-[#5A5A5A] hover:bg-black/5 transition-colors">
                       {p.statut === 'vendu' ? <RotateCcw size={16} /> : <CheckCircle2 size={16} />}
