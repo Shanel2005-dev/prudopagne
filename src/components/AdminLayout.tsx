@@ -50,11 +50,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     exact ? location.pathname === to : location.pathname.startsWith(to);
 
   return (
-    <div className="min-h-screen bg-[#FFF9F3] flex">
-      <aside className="w-64 shrink-0 bg-[#1C1C1C] text-[#BFB6AE] flex flex-col sticky top-0 h-screen">
-        <div className="px-6 py-7 mb-2 flex items-baseline gap-0.5">
-          <span className="font-display text-xl text-[#FFF9F3]">Prudo</span>
-          <span className="font-display text-xl italic text-[#D4AF37]">Pagne</span>
+    <div className="min-h-screen bg-[#FFF9F3] flex overflow-x-hidden">
+      <aside className="w-16 md:w-64 shrink-0 bg-[#1C1C1C] text-[#BFB6AE] flex flex-col sticky top-0 h-screen transition-[width] duration-200">
+        <div className="px-2 md:px-6 py-7 mb-2 flex items-baseline justify-center md:justify-start gap-0.5">
+          <span className="font-display text-xl text-[#FFF9F3]">P<span className="hidden md:inline">rudo</span></span>
+          <span className="font-display text-xl italic text-[#D4AF37] hidden md:inline">Pagne</span>
         </div>
 
         <nav className="flex-1 px-3 space-y-1">
@@ -62,27 +62,28 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <Link
               key={to}
               to={to}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm tracking-wide transition-colors ${
+              className={`flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-xl text-sm tracking-wide transition-colors ${
                 isActive(to, exact) ? 'bg-white/10 text-[#FFF9F3]' : 'hover:bg-white/5 hover:text-[#FFF9F3]'
               }`}
             >
-              <Icon size={17} className={isActive(to, exact) ? 'text-[#D4AF37]' : ''} /> {label}
+              <Icon size={17} className={isActive(to, exact) ? 'text-[#D4AF37]' : ''} />
+              <span className="hidden md:inline">{label}</span>
             </Link>
           ))}
         </nav>
 
         <button
           onClick={() => { setShowPasswordForm(true); setPasswordMessage(''); }}
-          className="mx-3 mb-2 flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm tracking-wide hover:bg-white/5 hover:text-[#FFF9F3] transition-colors"
+          className="mx-3 mb-2 flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-xl text-sm tracking-wide hover:bg-white/5 hover:text-[#FFF9F3] transition-colors"
         >
-          <KeyRound size={17} /> Changer le mot de passe
+          <KeyRound size={17} /> <span className="hidden md:inline">Changer le mot de passe</span>
         </button>
 
         <button
           onClick={handleLogout}
-          className="mx-3 mb-6 flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm tracking-wide hover:bg-white/5 hover:text-[#FFF9F3] transition-colors"
+          className="mx-3 mb-6 flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-xl text-sm tracking-wide hover:bg-white/5 hover:text-[#FFF9F3] transition-colors"
         >
-          <LogOut size={17} /> Déconnexion
+          <LogOut size={17} /> <span className="hidden md:inline">Déconnexion</span>
         </button>
       </aside>
 
