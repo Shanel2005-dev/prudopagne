@@ -4,7 +4,7 @@ import { ChevronLeft, X, ImagePlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useCategories } from '../hooks/useCatalog';
 import AdminLayout from '../components/AdminLayout';
-import type { ProductPhoto, ProductStatus } from '../types';
+import type { ProductPhoto } from '../types';
 
 export default function AdminProductFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,10 +16,9 @@ export default function AdminProductFormPage() {
   const [reference, setReference] = useState('');
   const [prix, setPrix] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [statut, setStatut] = useState<ProductStatus>('disponible');
-  const [venduAt, setVenduAt] = useState<string | null>(null);
   const [existingPhotos, setExistingPhotos] = useState<ProductPhoto[]>([]);
-  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [newFile, setNewFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -32,13 +31,21 @@ export default function AdminProductFormPage() {
         setReference(data.reference ?? '');
         setPrix(String(data.prix));
         setCategoryId(data.category_id ?? '');
-        setStatut(data.statut);
-        setVenduAt(data.vendu_at ?? null);
         setExistingPhotos(data.photos ?? []);
       }
       setLoading(false);
     });
   }, [id]);
+
+  useEffect(() => {
+    if (!newFile) {
+      setPreviewUrl('');
+      return;
+    }
+    const url = URL.createObjectURL(newFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [newFile]);
 
   const removeExistingPhoto = async (photo: ProductPhoto) => {
     await supabase.from('product_photos').delete().eq('id', photo.id);
@@ -49,16 +56,21 @@ export default function AdminProductFormPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const price = Number(prix);
+    const hasPhoto = !!newFile || (isEdit && existingPhotos.length > 0);
+    if (!designation.trim() || !Number.isFinite(price) || price <= 0 || !hasPhoto) {
+      setError('Renseigne une désignation, un prix positif et une photo.');
+      return;
+    }
+
     setSaving(true);
     setError('');
 
     const payload = {
-      designation,
+      designation: designation.trim(),
       reference: reference || null,
-      prix: Number(prix),
+      prix: price,
       category_id: categoryId || null,
-      statut,
-      vendu_at: statut === 'vendu' ? (venduAt ?? new Date().toISOString()) : null,
     };
 
     let productId = id;
@@ -71,17 +83,31 @@ export default function AdminProductFormPage() {
       productId = data.id;
     }
 
-    for (let i = 0; i < newFiles.length; i++) {
-      const file = newFiles[i];
-      const path = `${productId}/${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage.from('photos').upload(path, file);
-      if (uploadError) { setError(uploadError.message); continue; }
+    if (newFile) {
+      for (const photo of existingPhotos) {
+        await supabase.from('product_photos').delete().eq('id', photo.id);
+        const oldPath = photo.url.split('/photos/')[1];
+        if (oldPath) await supabase.storage.from('photos').remove([oldPath]);
+      }
+
+      const path = `${productId}/${Date.now()}-${newFile.name}`;
+      const { error: uploadError } = await supabase.storage.from('photos').upload(path, newFile);
+      if (uploadError) {
+        setError(uploadError.message);
+        setSaving(false);
+        return;
+      }
       const { data: urlData } = supabase.storage.from('photos').getPublicUrl(path);
-      await supabase.from('product_photos').insert({
+      const { error: photoError } = await supabase.from('product_photos').insert({
         product_id: productId,
         url: urlData.publicUrl,
-        position: existingPhotos.length + i,
+        position: 0,
       });
+      if (photoError) {
+        setError(photoError.message);
+        setSaving(false);
+        return;
+      }
     }
 
     setSaving(false);
@@ -119,7 +145,7 @@ export default function AdminProductFormPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-1.5">Prix (FCFA) *</label>
-              <input required type="number" min="0" value={prix} onChange={(e) => setPrix(e.target.value)}
+              <input required type="number" min="1" step="1" value={prix} onChange={(e) => setPrix(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-lg border border-[#8B1E3F]/15 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F]/25" />
             </div>
             <div>
@@ -129,29 +155,19 @@ export default function AdminProductFormPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-1.5">Catégorie</label>
-              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-[#8B1E3F]/15 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F]/25">
-                <option value="">Sans catégorie</option>
-                {categories.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-1.5">Statut</label>
-              <select value={statut} onChange={(e) => setStatut(e.target.value as ProductStatus)}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-[#8B1E3F]/15 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F]/25">
-                <option value="disponible">Disponible</option>
-                <option value="vendu">Vendu</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-1.5">Catégorie</label>
+            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-lg border border-[#8B1E3F]/15 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F]/25">
+              <option value="">Sans catégorie</option>
+              {categories.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
+            </select>
           </div>
 
           <div>
-            <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-2.5">Photos (une par couleur)</label>
+            <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-2.5">Photo *</label>
             <div className="flex flex-wrap gap-3">
-              {existingPhotos.map((photo) => (
+              {!newFile && existingPhotos.slice(0, 1).map((photo) => (
                 <div key={photo.id} className="relative w-20 h-20">
                   <img src={photo.url} alt="" className="w-full h-full object-cover rounded-lg" />
                   <button type="button" onClick={() => removeExistingPhoto(photo)}
@@ -160,24 +176,34 @@ export default function AdminProductFormPage() {
                   </button>
                 </div>
               ))}
-              {newFiles.map((file, i) => (
-                <div key={i} className="relative w-20 h-20">
-                  <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover rounded-lg" />
-                  <button type="button" onClick={() => setNewFiles((prev) => prev.filter((_, idx) => idx !== i))}
+              {previewUrl && (
+                <div className="relative w-20 h-20">
+                  <img src={previewUrl} alt="Aperçu de la photo sélectionnée" className="w-full h-full object-cover rounded-lg" />
+                  <button type="button" onClick={() => setNewFile(null)}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
                     <X size={12} />
                   </button>
                 </div>
-              ))}
-              <label className="w-20 h-20 rounded-lg border-2 border-dashed border-[#8B1E3F]/20 flex items-center justify-center cursor-pointer hover:border-[#8B1E3F]/50 transition-colors">
+              )}
+              {!newFile && existingPhotos.length === 0 && (
+                <label className="w-20 h-20 rounded-lg border-2 border-dashed border-[#8B1E3F]/20 flex items-center justify-center cursor-pointer hover:border-[#8B1E3F]/50 transition-colors">
+                  <ImagePlus size={20} className="text-[#A89A8E]" />
+                  <input type="file" accept="image/*" className="hidden"
+                    onChange={(e) => setNewFile(e.target.files?.[0] ?? null)} />
+                </label>
+              )}
+              {(newFile || existingPhotos.length > 0) && (
+                <label className="w-20 h-20 rounded-lg border-2 border-dashed border-[#8B1E3F]/20 flex items-center justify-center cursor-pointer hover:border-[#8B1E3F]/50 transition-colors">
                 <ImagePlus size={20} className="text-[#A89A8E]" />
-                <input type="file" accept="image/*" multiple className="hidden"
-                  onChange={(e) => setNewFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])])} />
-              </label>
+                  <input type="file" accept="image/*" className="hidden"
+                    onChange={(e) => setNewFile(e.target.files?.[0] ?? null)} />
+                </label>
+              )}
             </div>
+            {!isEdit && !newFile && <p className="text-xs text-[#8B1E3F] mt-2">Une photo est obligatoire.</p>}
           </div>
 
-          <button type="submit" disabled={saving}
+          <button type="submit" disabled={saving || !designation.trim() || Number(prix) <= 0 || (!newFile && (!isEdit || existingPhotos.length === 0))}
             className="w-full bg-[#8B1E3F] text-[#FFF9F3] py-3 rounded-full font-medium tracking-wide hover:bg-[#6E1732] transition-colors disabled:opacity-60">
             {saving ? 'Enregistrement…' : isEdit ? 'Enregistrer les modifications' : 'Ajouter le pagne'}
           </button>
