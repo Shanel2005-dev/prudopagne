@@ -4,10 +4,11 @@ import { MessageCircle, ChevronDown } from 'lucide-react';
 import { useCategories, useProducts } from '../hooks/useCatalog';
 import { whatsappLink } from '../utils/whatsapp';
 import ProductCard from '../components/ProductCard';
+import heroImage from '../assets/images/hero-pagne.jfif';
 
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '22965524216';
 
-const HERO_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Colourful_patterns_of_Kente_from_Tafi%2C_Volta_region.jpg/1920px-Colourful_patterns_of_Kente_from_Tafi%2C_Volta_region.jpg';
+const HERO_IMAGE = heroImage;
 
 const CATEGORY_IMAGES: Record<string, string> = {
   bazin: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Bazin_fabric.jpg',
@@ -17,7 +18,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
 
 export default function HomePage() {
   const { categories } = useCategories();
-  const { products } = useProducts();
+  const { products } = useProducts(true);
   const vedettes = products.slice(0, 8);
 
   return (
@@ -31,12 +32,11 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="relative max-w-2xl mx-auto text-center px-5"
+          className="relative max-w-2xl mx-auto text-center px-5 -mt-12 md:-mt-20"
         >
-          <p className="text-[11px] tracking-[0.35em] uppercase text-[#D4AF37] mb-5">Wax · Bazin · Guipure · Dentelle</p>
-          <h1 className="font-display text-4xl md:text-6xl leading-[1.1] text-[#FFF9F3] mb-6">
+           <h3 className="font-display text-4xl md:text-6xl leading-[1.1] text-[#FFF9F3] mb-6">
             Des tissus d'exception<br />pour sublimer votre élégance
-          </h1>
+          </h3>
           <p className="text-[#FFF9F3]/75 text-base md:text-lg mb-10 max-w-md mx-auto">
             Une sélection choisie avec exigence — à admirer, puis à commander directement sur WhatsApp.
           </p>

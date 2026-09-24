@@ -10,7 +10,7 @@ export default function CataloguePage() {
   const categorie = params.get('categorie') || '';
   const [query, setQuery] = useState('');
   const { categories } = useCategories();
-  const { products, loading } = useProducts();
+  const { products, loading } = useProducts(true);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {

@@ -16,7 +16,8 @@ create table products (
   prix numeric(10, 0) not null check (prix >= 0),
   statut text not null default 'disponible' check (statut in ('disponible', 'vendu')),
   category_id uuid references categories(id) on delete set null,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  vendu_at timestamptz
 );
 
 -- 3. Photos d'un produit (une par couleur/angle)

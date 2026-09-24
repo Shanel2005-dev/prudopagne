@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ChevronLeft, X, ImagePlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useCategories } from '../hooks/useCatalog';
+import AdminLayout from '../components/AdminLayout';
 import type { ProductPhoto, ProductStatus } from '../types';
 
 export default function AdminProductFormPage() {
@@ -16,6 +17,7 @@ export default function AdminProductFormPage() {
   const [prix, setPrix] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [statut, setStatut] = useState<ProductStatus>('disponible');
+  const [venduAt, setVenduAt] = useState<string | null>(null);
   const [existingPhotos, setExistingPhotos] = useState<ProductPhoto[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(isEdit);
@@ -31,6 +33,7 @@ export default function AdminProductFormPage() {
         setPrix(String(data.prix));
         setCategoryId(data.category_id ?? '');
         setStatut(data.statut);
+        setVenduAt(data.vendu_at ?? null);
         setExistingPhotos(data.photos ?? []);
       }
       setLoading(false);
@@ -55,6 +58,7 @@ export default function AdminProductFormPage() {
       prix: Number(prix),
       category_id: categoryId || null,
       statut,
+      vendu_at: statut === 'vendu' ? (venduAt ?? new Date().toISOString()) : null,
     };
 
     let productId = id;
@@ -81,18 +85,23 @@ export default function AdminProductFormPage() {
     }
 
     setSaving(false);
-    navigate('/admin');
+    navigate('/admin/produits');
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-[#A89A8E]">Chargement…</div>;
+    return (
+      <AdminLayout>
+        <div className="p-10 text-center text-[#A89A8E]">Chargement…</div>
+      </AdminLayout>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF9F3] py-10 px-5">
+    <AdminLayout>
+    <div className="py-10 px-5">
       <div className="max-w-2xl mx-auto">
-        <Link to="/admin" className="flex items-center gap-1 text-sm text-[#5A5A5A] hover:text-[#8B1E3F] transition-colors mb-6">
-          <ChevronLeft size={16} /> Retour au tableau de bord
+        <Link to="/admin/produits" className="flex items-center gap-1 text-sm text-[#5A5A5A] hover:text-[#8B1E3F] transition-colors mb-6">
+          <ChevronLeft size={16} /> Retour aux produits
         </Link>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-7 space-y-5">
@@ -175,5 +184,6 @@ export default function AdminProductFormPage() {
         </form>
       </div>
     </div>
+    </AdminLayout>
   );
 }

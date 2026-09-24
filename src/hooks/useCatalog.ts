@@ -21,19 +21,34 @@ export function useCategories() {
   return { categories, loading, reload };
 }
 
-export function useProducts() {
+/**
+ * onlyAvailable = true  -> pour le site public (Accueil, Catalogue) : exclut les pagnes vendus
+ * onlyAvailable = false -> pour l'admin (AdminProductsPage) : affiche tout, y compris les vendus
+ */
+export function useProducts(onlyAvailable = false) {
   const [products, setProducts] = useState<ProductWithPhotos[]>([]);
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from('products')
       .select('*, category:categories(*), photos:product_photos(*)')
       .order('created_at', { ascending: false });
-    setProducts(error && import.meta.env.DEV ? DEMO_PRODUCTS : ((data as ProductWithPhotos[]) ?? []));
+
+    if (onlyAvailable) {
+      query = query.eq('statut', 'disponible');
+    }
+
+    const { data, error } = await query;
+
+    const fallback = onlyAvailable
+      ? DEMO_PRODUCTS.filter((p) => p.statut === 'disponible')
+      : DEMO_PRODUCTS;
+
+    setProducts(error && import.meta.env.DEV ? fallback : ((data as ProductWithPhotos[]) ?? []));
     setLoading(false);
-  }, []);
+  }, [onlyAvailable]);
 
   useEffect(() => {
     reload();

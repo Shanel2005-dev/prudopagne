@@ -14,6 +14,7 @@ export interface Product {
   statut: ProductStatus;
   category_id: string | null;
   created_at: string;
+  vendu_at: string | null;
 }
 
 export interface ProductPhoto {

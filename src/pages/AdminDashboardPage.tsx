@@ -1,12 +1,27 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
-import { Plus, LogOut, Package, Wallet, TrendingUp, Trash2, CheckCircle2, RotateCcw, Pencil } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { useMemo, useState } from 'react';
+import { Package, Wallet, TrendingUp, Hourglass } from 'lucide-react';
+import {
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
+  ArcElement, Filler, Tooltip, Legend,
+} from 'chart.js';
+import { Line, Doughnut } from 'react-chartjs-2';
+import AdminLayout from '../components/AdminLayout';
 import { useProducts } from '../hooks/useCatalog';
+import { revenueByPeriod, stockByCategory, type RevenuePeriod } from '../utils/stats';
+
+const PERIODS: { key: RevenuePeriod; label: string }[] = [
+  { key: 'semaine', label: 'Semaine' },
+  { key: 'mois', label: 'Mois' },
+  { key: 'annee', label: 'Année' },
+];
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Filler, Tooltip, Legend);
+
+const DOUGHNUT_COLORS = ['#8B1E3F', '#D4AF37', '#1C1C1C', '#B8952E', '#5A5A5A', '#6E1732'];
 
 export default function AdminDashboardPage() {
-  const navigate = useNavigate();
-  const { products, loading, reload } = useProducts();
+  const { products, loading } = useProducts();
+  const [period, setPeriod] = useState<RevenuePeriod>('mois');
 
   const stats = useMemo(() => {
     const disponibles = products.filter((p) => p.statut === 'disponible');
@@ -15,99 +30,129 @@ export default function AdminDashboardPage() {
       count: disponibles.length,
       valeurStock: disponibles.reduce((sum, p) => sum + p.prix, 0),
       revenu: vendus.reduce((sum, p) => sum + p.prix, 0),
+      recents: products.filter((p) => (Date.now() - new Date(p.created_at).getTime()) / 86400000 <= 14).length,
     };
   }, [products]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+  const revenue = useMemo(() => revenueByPeriod(products, period), [products, period]);
+  const stock = useMemo(() => stockByCategory(products), [products]);
+
+  const lineData = {
+    labels: revenue.map((r) => r.label),
+    datasets: [{
+      label: 'Revenu (FCFA)',
+      data: revenue.map((r) => r.total),
+      borderColor: '#8B1E3F',
+      backgroundColor: (ctx: { chart: { ctx: CanvasRenderingContext2D } }) => {
+        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
+        g.addColorStop(0, 'rgba(139,30,63,0.25)');
+        g.addColorStop(1, 'rgba(139,30,63,0)');
+        return g;
+      },
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: '#D4AF37',
+      pointBorderColor: '#8B1E3F',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      borderWidth: 2.5,
+    }],
   };
 
-  const toggleStatut = async (id: string, statut: 'disponible' | 'vendu') => {
-    await supabase.from('products').update({ statut: statut === 'vendu' ? 'disponible' : 'vendu' }).eq('id', id);
-    reload();
-  };
-
-  const deleteProduct = async (id: string) => {
-    if (!confirm('Supprimer définitivement ce pagne ?')) return;
-    await supabase.from('products').delete().eq('id', id);
-    reload();
+  const doughnutData = {
+    labels: stock.map((s) => s.label),
+    datasets: [{
+      data: stock.map((s) => s.count),
+      backgroundColor: DOUGHNUT_COLORS,
+      borderColor: '#FFF9F3',
+      borderWidth: 3,
+    }],
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9F3] py-10 px-5">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-10">
-          <h1 className="font-display text-3xl text-[#1C1C1C]">Tableau de bord</h1>
-          <div className="flex items-center gap-2">
-            <Link to="/admin/produits/nouveau" className="flex items-center gap-1.5 bg-[#8B1E3F] text-[#FFF9F3] px-5 py-2.5 rounded-full text-sm font-medium tracking-wide hover:bg-[#6E1732] transition-colors">
-              <Plus size={16} /> Ajouter un pagne
-            </Link>
-            <button onClick={handleLogout} className="flex items-center gap-1.5 text-[#5A5A5A] px-3 py-2.5 rounded-full hover:bg-black/5 transition-colors text-sm">
-              <LogOut size={15} /> Déconnexion
-            </button>
-          </div>
+    <AdminLayout>
+      <div className="p-8 md:p-10 max-w-6xl">
+        <h1 className="font-display text-3xl text-[#1C1C1C] mb-8">Vue d'ensemble</h1>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <StatCard icon={Package} label="Pagnes en stock" value={String(stats.count)} />
+          <StatCard icon={Wallet} label="Valeur du stock" value={`${stats.valeurStock.toLocaleString()} F`} />
+          <StatCard icon={TrendingUp} label="Revenu total" value={`${stats.revenu.toLocaleString()} F`} accent />
+          <StatCard icon={Hourglass} label="Ajoutés (14 derniers jours)" value={String(stats.recents)} />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-          <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-6 flex items-center gap-4">
-            <div className="w-11 h-11 rounded-full bg-[#8B1E3F]/8 flex items-center justify-center shrink-0"><Package size={19} className="text-[#8B1E3F]" /></div>
-            <div>
-              <p className="font-display text-2xl text-[#1C1C1C]">{stats.count}</p>
-              <p className="text-[#5A5A5A] text-sm">Pagnes en stock</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-6 flex items-center gap-4">
-            <div className="w-11 h-11 rounded-full bg-[#8B1E3F]/8 flex items-center justify-center shrink-0"><Wallet size={19} className="text-[#8B1E3F]" /></div>
-            <div>
-              <p className="font-display text-2xl text-[#1C1C1C]">{stats.valeurStock.toLocaleString()} F</p>
-              <p className="text-[#5A5A5A] text-sm">Valeur estimée du stock</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-6 flex items-center gap-4">
-            <div className="w-11 h-11 rounded-full bg-[#D4AF37]/15 flex items-center justify-center shrink-0"><TrendingUp size={19} className="text-[#B8952E]" /></div>
-            <div>
-              <p className="font-display text-2xl text-[#1C1C1C]">{stats.revenu.toLocaleString()} F</p>
-              <p className="text-[#5A5A5A] text-sm">Revenu (articles vendus)</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 overflow-hidden">
-          <div className="p-5 border-b border-[#8B1E3F]/10 font-display text-lg text-[#1C1C1C]">Mes pagnes</div>
-          {loading ? (
-            <p className="p-10 text-center text-[#A89A8E]">Chargement…</p>
-          ) : products.length === 0 ? (
-            <p className="p-10 text-center text-[#A89A8E]">Aucun pagne pour l'instant. Ajoutez-en un !</p>
-          ) : (
-            <div className="divide-y divide-[#8B1E3F]/8">
-              {products.map((p) => (
-                <div key={p.id} className="flex items-center gap-4 p-4">
-                  <img src={p.photos[0]?.url} alt="" className="w-14 h-14 rounded-lg object-cover bg-[#F3E9DE] shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[#1C1C1C] truncate">{p.designation}</p>
-                    <p className="text-sm text-[#5A5A5A]">{p.prix.toLocaleString()} FCFA · {p.category?.nom ?? 'Sans catégorie'}</p>
-                  </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${p.statut === 'vendu' ? 'bg-[#F3E9DE] text-[#5A5A5A]' : 'bg-green-50 text-green-700'}`}>
-                    {p.statut === 'vendu' ? 'Vendu' : 'Disponible'}
-                  </span>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => toggleStatut(p.id, p.statut)} title={p.statut === 'vendu' ? 'Remettre en stock' : 'Marquer vendu'}
-                      className="p-2 rounded-lg text-[#5A5A5A] hover:bg-black/5 transition-colors">
-                      {p.statut === 'vendu' ? <RotateCcw size={16} /> : <CheckCircle2 size={16} />}
-                    </button>
-                    <Link to={`/admin/produits/${p.id}/modifier`} title="Modifier" className="p-2 rounded-lg text-[#5A5A5A] hover:bg-black/5 transition-colors">
-                      <Pencil size={16} />
-                    </Link>
-                    <button onClick={() => deleteProduct(p.id)} title="Supprimer" className="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+        {loading ? (
+          <p className="text-[#A89A8E]">Chargement…</p>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-[#8B1E3F]/10 p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <div>
+                  <p className="font-display text-lg text-[#1C1C1C] mb-1">Évolution des ventes</p>
+                  <p className="text-[#5A5A5A] text-sm">Revenu par {period}</p>
                 </div>
-              ))}
+                <div className="flex gap-1 bg-[#F3E9DE] rounded-full p-1">
+                  {PERIODS.map((p) => (
+                    <button
+                      key={p.key}
+                      onClick={() => setPeriod(p.key)}
+                      className={`px-4 py-1.5 rounded-full text-xs font-medium tracking-wide transition-colors ${
+                        period === p.key ? 'bg-[#8B1E3F] text-[#FFF9F3]' : 'text-[#5A5A5A] hover:text-[#8B1E3F]'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="h-64">
+                <Line
+                  data={lineData}
+                  options={{
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${Number(c.raw).toLocaleString()} FCFA` } } },
+                    scales: {
+                      y: { beginAtZero: true, grid: { color: '#8B1E3F0D' }, ticks: { color: '#5A5A5A', font: { size: 11 } } },
+                      x: { grid: { display: false }, ticks: { color: '#5A5A5A', font: { size: 11 } } },
+                    },
+                  }}
+                />
+              </div>
             </div>
-          )}
-        </div>
+
+            <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-6">
+              <p className="font-display text-lg text-[#1C1C1C] mb-1">Stock par catégorie</p>
+              <p className="text-[#5A5A5A] text-sm mb-5">Pagnes disponibles</p>
+              {stock.length === 0 ? (
+                <p className="text-[#A89A8E] text-sm py-10 text-center">Aucun pagne en stock.</p>
+              ) : (
+                <div className="h-52 flex items-center justify-center">
+                  <Doughnut
+                    data={doughnutData}
+                    options={{
+                      responsive: true, maintainAspectRatio: false,
+                      plugins: { legend: { position: 'bottom', labels: { color: '#5A5A5A', boxWidth: 10, padding: 12, font: { size: 11 } } } },
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="bg-white rounded-2xl border border-[#8B1E3F]/10 p-5 flex items-center gap-4">
+      <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${accent ? 'bg-[#D4AF37]/15' : 'bg-[#8B1E3F]/8'}`}>
+        <Icon size={19} className={accent ? 'text-[#B8952E]' : 'text-[#8B1E3F]'} />
+      </div>
+      <div>
+        <p className="font-display text-xl text-[#1C1C1C]">{value}</p>
+        <p className="text-[#5A5A5A] text-xs">{label}</p>
       </div>
     </div>
   );
