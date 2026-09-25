@@ -4,6 +4,10 @@ import type { Category, ProductWithPhotos } from '../types';
 
 export const DEMO_CATEGORIES: Category[] = [
   { id: 'demo-wax', nom: 'Wax', created_at: new Date().toISOString() },
+  { id: 'demo-chiganvy', nom: 'Chiganvy', created_at: new Date().toISOString() },
+  { id: 'demo-vlisco', nom: 'Vlisco', created_at: new Date().toISOString() },
+  { id: 'demo-superwax', nom: 'Superwax', created_at: new Date().toISOString() },
+  { id: 'demo-vlisco-imitation', nom: 'Vlisco imitation', created_at: new Date().toISOString() },
   { id: 'demo-bazin', nom: 'Bazin', created_at: new Date().toISOString() },
   { id: 'demo-guipure', nom: 'Guipure', created_at: new Date().toISOString() },
   { id: 'demo-dentelle', nom: 'Dentelle', created_at: new Date().toISOString() },

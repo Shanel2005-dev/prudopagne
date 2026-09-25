@@ -10,7 +10,11 @@ export function useCategories() {
   const reload = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.from('categories').select('*').order('nom');
-    setCategories(error && import.meta.env.DEV ? DEMO_CATEGORIES : (data ?? []));
+    const fallbackCategories = DEMO_CATEGORIES;
+    const nextCategories = error
+      ? fallbackCategories
+      : ((data && data.length > 0) ? (data as Category[]) : fallbackCategories);
+    setCategories(nextCategories);
     setLoading(false);
   }, []);
 
