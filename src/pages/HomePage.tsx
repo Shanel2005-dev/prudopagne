@@ -14,6 +14,10 @@ const CATEGORY_IMAGES: Record<string, string> = {
   bazin: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Bazin_fabric.jpg',
   wax: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Wax_print.jpeg/1280px-Wax_print.jpeg',
   tissus: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Ankara_Fabric_With_A_Touch_Of_Smile.jpg/1280px-Ankara_Fabric_With_A_Touch_Of_Smile.jpg',
+  chiganvy: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Wax_print.jpeg/1280px-Wax_print.jpeg',
+  vlisco: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Wax_print.jpeg/1280px-Wax_print.jpeg',
+  superwax: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Wax_print.jpeg/1280px-Wax_print.jpeg',
+  'vlisco imitation': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Wax_print.jpeg/1280px-Wax_print.jpeg',
 };
 
 export default function HomePage() {
