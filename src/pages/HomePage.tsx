@@ -10,21 +10,21 @@ const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '22965524216';
 
 const HERO_IMAGE = heroImage;
 
-const CATEGORY_IMAGES: Record<string, string> = {
-  bazin: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Bazin_fabric.jpg',
-  wax: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Wax_print.jpeg/1280px-Wax_print.jpeg',
-  tissus: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Ankara_Fabric_With_A_Touch_Of_Smile.jpg/1280px-Ankara_Fabric_With_A_Touch_Of_Smile.jpg',
-  chiganvy: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80',
-  vlisco: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80',
-  superwax: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80',
-  'vlisco imitation': 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900&q=80',
-  'cocodonda burkina': 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80',
-};
-
 export default function HomePage() {
   const { categories } = useCategories();
   const { products } = useProducts(true);
   const vedettes = products.slice(0, 8);
+
+  const categoriesWithImages = categories.map((category) => {
+    const productForCategory = products.find(
+      (product) => product.category_id === category.id && (product.photos?.length ?? 0) > 0,
+    );
+
+    return {
+      ...category,
+      image: productForCategory?.photos?.[0]?.url ?? '',
+    };
+  });
 
   return (
     <div className="bg-[#FFF9F3]">
@@ -76,8 +76,8 @@ export default function HomePage() {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-          {categories.map((c, i) => {
-            const img = CATEGORY_IMAGES[c.nom.toLowerCase()];
+          {categoriesWithImages.map((c, i) => {
+            const img = c.image;
             return (
               <motion.div
                 key={c.id}
