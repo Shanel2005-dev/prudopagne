@@ -13,12 +13,17 @@ export default function CataloguePage() {
   const { products, loading } = useProducts(true);
 
   const filtered = useMemo(() => {
+    const selectedCategory = categories.find((c) => c.id === categorie);
+
     return products.filter((p) => {
-      const matchCategorie = !categorie || p.category_id === categorie;
+      const matchCategorie = !categorie
+        || p.category_id === categorie
+        || p.category?.id === categorie
+        || (selectedCategory && p.category?.nom === selectedCategory.nom);
       const matchQuery = !query || p.designation.toLowerCase().includes(query.toLowerCase());
       return matchCategorie && matchQuery;
     });
-  }, [products, categorie, query]);
+  }, [products, categorie, categories, query]);
 
   return (
     <div className="min-h-screen bg-[#FFF9F3] py-10 px-5">

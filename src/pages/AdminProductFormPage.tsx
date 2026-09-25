@@ -92,6 +92,14 @@ export default function AdminProductFormPage() {
     }
   };
 
+  const handleBulkFilesChange = (files: FileList | null) => {
+    if (!files || files.length === 0) {
+      setBulkFiles([]);
+      return;
+    }
+    setBulkFiles(Array.from(files));
+  };
+
   const handleSingleSubmit = async () => {
     const price = Number(prix);
     const hasPhoto = !!newFile || (isEdit && existingPhotos.length > 0);
@@ -159,8 +167,12 @@ export default function AdminProductFormPage() {
         throw new Error(insertError?.message ?? 'Erreur lors de la création du lot.');
       }
 
-      for (const product of createdProducts) {
-        await addPhotosToProduct(product.id, bulkFiles);
+      for (let index = 0; index < createdProducts.length; index += 1) {
+        const product = createdProducts[index];
+        const uniquePhoto = bulkFiles[index] ?? bulkFiles[0];
+        if (uniquePhoto) {
+          await addPhotosToProduct(product.id, [uniquePhoto]);
+        }
       }
 
       navigate('/admin/produits');
@@ -300,11 +312,28 @@ export default function AdminProductFormPage() {
                     accept="image/*"
                     multiple
                     className="hidden"
-                    onChange={(e) => setBulkFiles(Array.from(e.target.files ?? []))}
+                    onChange={(e) => handleBulkFilesChange(e.target.files)}
                   />
                 </label>
                 {bulkFiles.length > 0 && (
-                  <p className="text-xs text-[#5A5A5A]">{bulkFiles.length} photo(s) sélectionnée(s). Elles seront utilisées pour chaque pagne du lot.</p>
+                  <div className="space-y-2">
+                    <p className="text-xs text-[#5A5A5A]">{bulkFiles.length} photo(s) sélectionnée(s). Une photo sera attribuée à chaque variante du lot.</p>
+                    <div className="flex flex-wrap gap-2">
+                      {bulkFiles.map((file, index) => (
+                        <div key={`${file.name}-${index}`} className="inline-flex items-center gap-2 rounded-full border border-[#8B1E3F]/15 bg-[#FFF9F3] px-2.5 py-1 text-xs text-[#5A5A5A]">
+                          <span className="max-w-[180px] truncate">{file.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setBulkFiles((prev) => prev.filter((_, i) => i !== index))}
+                            className="text-[#8B1E3F] hover:text-[#6E1732]"
+                            aria-label={`Retirer ${file.name}`}
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             ) : (
