@@ -8,6 +8,7 @@ export const DEMO_CATEGORIES: Category[] = [
   { id: 'demo-vlisco', nom: 'Vlisco', created_at: new Date().toISOString() },
   { id: 'demo-superwax', nom: 'Superwax', created_at: new Date().toISOString() },
   { id: 'demo-vlisco-imitation', nom: 'Vlisco imitation', created_at: new Date().toISOString() },
+  { id: 'demo-cocodonda-burkina', nom: 'Cocodonda Burkina', created_at: new Date().toISOString() },
   { id: 'demo-bazin', nom: 'Bazin', created_at: new Date().toISOString() },
   { id: 'demo-guipure', nom: 'Guipure', created_at: new Date().toISOString() },
   { id: 'demo-dentelle', nom: 'Dentelle', created_at: new Date().toISOString() },

@@ -55,6 +55,7 @@ insert into categories (nom) values
   ('Vlisco'),
   ('Superwax'),
   ('Vlisco imitation'),
+  ('Cocodonda Burkina'),
   ('Bazin'),
   ('Guipure'),
   ('Dentelle'),
