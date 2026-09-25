@@ -21,6 +21,8 @@ export default function ProductPage() {
 
   const isVendu = product.statut === 'vendu';
   const photos = product.photos.length > 0 ? product.photos : [];
+  const primaryPhoto = photos[photoIdx]?.url || photos[0]?.url || '';
+  const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/produit/${product.id}` : `https://example.com/produit/${product.id}`;
 
   return (
     <div className="min-h-screen bg-[#FFF9F3] py-10 px-5">
@@ -66,7 +68,7 @@ export default function ProductPage() {
                 <p className="text-center bg-[#F3E9DE] text-[#5A5A5A] rounded-xl p-4 font-medium">Cet article a été vendu.</p>
               ) : (
                 <a
-                  href={whatsappLink(WHATSAPP_NUMBER, buildProductMessage(product))}
+                  href={whatsappLink(WHATSAPP_NUMBER, buildProductMessage(product, primaryPhoto, productUrl))}
                   target="_blank" rel="noopener noreferrer"
                   className="group w-full flex items-center justify-center gap-2.5 bg-[#1C1C1C] text-[#FFF9F3] py-4 rounded-full font-medium tracking-wide hover:bg-[#8B1E3F] transition-colors duration-300"
                 >
