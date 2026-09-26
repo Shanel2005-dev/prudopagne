@@ -43,7 +43,7 @@ export default function HomePage() {
             Des tissus d'exception<br />pour sublimer votre élégance
           </h3>
           <p className="text-[#FFF9F3]/75 text-base md:text-lg mb-10 max-w-md mx-auto">
-            Une sélection choisie avec exigence — à admirer, puis à commander directement sur WhatsApp.
+            Une sélection choisie avec exigence  à admirer, puis à commander directement sur WhatsApp.
           </p>
           <Link
             to="/catalogue"

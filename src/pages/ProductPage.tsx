@@ -19,7 +19,6 @@ export default function ProductPage() {
     return <div className="min-h-screen flex items-center justify-center text-[#5A5A5A]">Article introuvable.</div>;
   }
 
-  const isVendu = product.statut === 'vendu';
   const photos = product.photos.length > 0 ? product.photos : [];
   const primaryPhoto = photos[photoIdx]?.url || photos[0]?.url || '';
   const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/produit/${product.id}` : `https://example.com/produit/${product.id}`;
@@ -35,12 +34,9 @@ export default function ProductPage() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="relative aspect-square bg-[#F3E9DE] rounded-xl overflow-hidden">
               {photos.length > 0 ? (
-                <img src={photos[photoIdx].url} alt={product.designation} className={`w-full h-full object-cover transition-transform duration-500 hover:scale-[1.04] ${isVendu ? 'grayscale opacity-60' : ''}`} />
+                <img src={photos[photoIdx].url} alt={product.designation} className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.04]" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#A89A8E]">Pas de photo</div>
-              )}
-              {isVendu && (
-                <span className="absolute top-4 left-4 bg-[#1C1C1C]/85 text-[#FFF9F3] text-[11px] tracking-widest uppercase px-3 py-1.5 rounded-full">Vendu</span>
               )}
             </div>
             {photos.length > 1 && (
@@ -64,17 +60,13 @@ export default function ProductPage() {
             <p className="font-display text-3xl text-[#8B1E3F] mb-8">{product.prix.toLocaleString()} FCFA</p>
 
             <div className="mt-auto">
-              {isVendu ? (
-                <p className="text-center bg-[#F3E9DE] text-[#5A5A5A] rounded-xl p-4 font-medium">Cet article a été vendu.</p>
-              ) : (
-                <a
-                  href={whatsappLink(WHATSAPP_NUMBER, buildProductMessage(product, primaryPhoto, productUrl))}
-                  target="_blank" rel="noopener noreferrer"
-                  className="group w-full flex items-center justify-center gap-2.5 bg-[#1C1C1C] text-[#FFF9F3] py-4 rounded-full font-medium tracking-wide hover:bg-[#8B1E3F] transition-colors duration-300"
-                >
-                  <MessageCircle size={18} className="text-[#D4AF37] transition-transform group-hover:scale-110" /> Contacter sur WhatsApp
-                </a>
-              )}
+              <a
+                href={whatsappLink(WHATSAPP_NUMBER, buildProductMessage(product, primaryPhoto, productUrl))}
+                target="_blank" rel="noopener noreferrer"
+                className="group w-full flex items-center justify-center gap-2.5 bg-[#1C1C1C] text-[#FFF9F3] py-4 rounded-full font-medium tracking-wide hover:bg-[#8B1E3F] transition-colors duration-300"
+              >
+                <MessageCircle size={18} className="text-[#D4AF37] transition-transform group-hover:scale-110" /> Contacter sur WhatsApp
+              </a>
             </div>
           </motion.div>
         </div>

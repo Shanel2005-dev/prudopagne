@@ -9,11 +9,21 @@ export default function AdminProductsPage() {
 
   const toggleStatut = async (id: string, statut: 'disponible' | 'vendu') => {
     const next = statut === 'vendu' ? 'disponible' : 'vendu';
-    await supabase.from('products').update({
-      statut: next,
-      vendu_at: next === 'vendu' ? new Date().toISOString() : null,
-    }).eq('id', id);
-    reload();
+
+    try {
+      const { error } = await supabase.from('products').update({
+        statut: next,
+        vendu_at: next === 'vendu' ? new Date().toISOString() : null,
+      }).eq('id', id);
+
+      if (error) throw error;
+      reload();
+    } catch (error) {
+      console.error('Erreur lors du changement de statut:', error);
+      alert(
+        `Impossible de modifier le statut du pagne.\nVérifie les permissions Supabase et la colonne vendu_at.\n${error instanceof Error ? error.message : ''}`
+      );
+    }
   };
 
   const deleteProduct = async (id: string) => {

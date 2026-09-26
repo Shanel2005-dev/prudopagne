@@ -26,8 +26,8 @@ export function useCategories() {
 }
 
 /**
- * onlyAvailable = true  -> pour le site public (Accueil, Catalogue) : exclut les pagnes vendus
- * onlyAvailable = false -> pour l'admin (AdminProductsPage) : affiche tout, y compris les vendus
+ * Pour le catalogue public, on conserve tous les articles, même vendus,
+ * afin qu'ils restent visibles avec leur badge "Vendu".
  */
 export function useProducts(onlyAvailable = false) {
   const [products, setProducts] = useState<ProductWithPhotos[]>([]);
@@ -35,20 +35,14 @@ export function useProducts(onlyAvailable = false) {
 
   const reload = useCallback(async () => {
     setLoading(true);
-    let query = supabase
+    const query = supabase
       .from('products')
       .select('*, category:categories(*), photos:product_photos(*)')
       .order('created_at', { ascending: false });
 
-    if (onlyAvailable) {
-      query = query.eq('statut', 'disponible');
-    }
-
     const { data, error } = await query;
 
-    const fallback = onlyAvailable
-      ? DEMO_PRODUCTS.filter((p) => p.statut === 'disponible')
-      : DEMO_PRODUCTS;
+    const fallback = DEMO_PRODUCTS;
 
     setProducts(error && import.meta.env.DEV ? fallback : ((data as ProductWithPhotos[]) ?? []));
     setLoading(false);
