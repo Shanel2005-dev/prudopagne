@@ -17,7 +17,7 @@ export default function Navbar() {
     <nav className="bg-[#FFF9F3]/95 backdrop-blur-sm sticky top-0 z-50 border-b border-[#8B1E3F]/10">
       <div className="max-w-6xl mx-auto px-5 flex items-center justify-between h-20">
         <Link to="/" className={`flex items-baseline gap-0.5 rounded-md px-1 -mx-1 ${FOCUS_RING}`}>
-          <span className="font-display text-2xl tracking-tight text-[#1C1C1C]">Prudo</span>
+          <span className="font-display text-2xl tracking-tight text-[#1C1C1C]">Afri'</span>
           <span className="font-display text-2xl italic text-[#D4AF37]">Pagne</span>
         </Link>
         <div className="hidden md:flex items-center gap-8">

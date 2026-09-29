@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-5 py-14 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
           <div className="flex items-baseline gap-0.5 mb-3">
-            <span className="font-display text-xl text-[#FFF9F3]">Prudo</span>
+            <span className="font-display text-xl text-[#FFF9F3]">Afri'</span>
             <span className="font-display text-xl italic text-[#D4AF37]">Pagne</span>
           </div>
           <p className="text-sm leading-relaxed max-w-xs">Wax, Bazin, Guipure et Dentelle — une sélection de tissus choisis avec exigence.</p>
@@ -33,7 +33,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-5 py-5 text-xs tracking-wide text-center">© 2026 Prudo Pagne. Tous droits réservés.</div>
+        <div className="max-w-6xl mx-auto px-5 py-5 text-xs tracking-wide text-center">© 2026 Afri'Pagne. Tous droits réservés.</div>
       </div>
     </footer>
   );

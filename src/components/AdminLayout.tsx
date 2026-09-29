@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <aside className={`fixed inset-y-0 left-0 z-30 w-64 bg-[#1C1C1C] text-[#BFB6AE] flex flex-col transition-transform duration-200 md:static md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="px-6 py-7 mb-2 flex items-baseline justify-between gap-0.5">
           <div>
-            <span className="font-display text-xl text-[#FFF9F3]">Prudo</span>
+            <span className="font-display text-xl text-[#FFF9F3]">Afri'</span>
             <span className="font-display text-xl italic text-[#D4AF37]">Pagne</span>
           </div>
           <button
@@ -109,7 +109,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
       <main className="flex-1 min-w-0">
         <div className="md:hidden h-16 px-4 flex items-center justify-between border-b border-[#8B1E3F]/10 bg-[#FFF9F3]">
-          <span className="font-display text-lg text-[#1C1C1C]">Prudo<span className="italic text-[#D4AF37]">Pagne</span></span>
+          <span className="font-display text-lg text-[#1C1C1C]">Afri'<span className="italic text-[#D4AF37]">Pagne</span></span>
           <button
             type="button"
             aria-label="Ouvrir le menu"
