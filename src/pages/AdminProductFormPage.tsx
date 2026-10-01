@@ -142,8 +142,8 @@ export default function AdminProductFormPage() {
     const price = Number(prix);
     const variants = normalizeVariants(bulkColors);
 
-    if (!designation.trim() || !Number.isFinite(price) || price <= 0 || variants.length === 0 || bulkFiles.length === 0) {
-      setError('Renseigne une désignation, un prix valide, au moins une variante de couleur et au moins une photo.');
+    if (!designation.trim() || !Number.isFinite(price) || price <= 0 || bulkFiles.length === 0) {
+      setError('Renseigne une désignation, un prix valide et au moins une photo.');
       return;
     }
 
@@ -151,7 +151,10 @@ export default function AdminProductFormPage() {
     setError('');
 
     try {
-      const insertPayload = variants.map((variant, index) => ({
+      const productsToCreate = variants.length > 0
+        ? variants.map((variant) => ({ variant, photo: undefined }))
+        : bulkFiles.map((photo) => ({ variant: '', photo }));
+      const insertPayload = productsToCreate.map(({ variant }, index) => ({
         designation: `${designation.trim()} ${variant}`.trim(),
         reference: buildReferenceForVariant(bulkReference || designation.trim(), index + 1),
         prix: price,
@@ -169,7 +172,7 @@ export default function AdminProductFormPage() {
 
       for (let index = 0; index < createdProducts.length; index += 1) {
         const product = createdProducts[index];
-        const uniquePhoto = bulkFiles[index] ?? bulkFiles[0];
+        const uniquePhoto = productsToCreate[index].photo ?? bulkFiles[index] ?? bulkFiles[0];
         if (uniquePhoto) {
           await addPhotosToProduct(product.id, [uniquePhoto]);
         }
@@ -287,14 +290,14 @@ export default function AdminProductFormPage() {
 
           {mode === 'bulk' && (
             <div>
-              <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-1.5">Couleurs / variantes *</label>
+              <label className="block text-xs tracking-wide uppercase text-[#5A5A5A] mb-1.5">Couleurs / variantes (facultatif)</label>
               <textarea
                 value={bulkColors}
                 onChange={(e) => setBulkColors(e.target.value)}
                 placeholder="Ex: rouge, bleu, jaune, noir"
                 className="w-full min-h-[90px] px-3.5 py-2.5 rounded-lg border border-[#8B1E3F]/15 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F]/25"
               />
-              <p className="text-xs text-[#5A5A5A] mt-1">Sépare chaque couleur par une virgule. Chaque variante sera créée comme un pagne séparé.</p>
+              <p className="text-xs text-[#5A5A5A] mt-1">Sépare les couleurs par une virgule. Sans couleur, chaque photo sera créée comme un pagne séparé.</p>
             </div>
           )}
 
@@ -377,7 +380,7 @@ export default function AdminProductFormPage() {
 
           <button
             type="submit"
-            disabled={saving || !designation.trim() || Number(prix) <= 0 || (mode === 'single' ? (!newFile && (!isEdit || existingPhotos.length === 0)) : bulkFiles.length === 0 || normalizeVariants(bulkColors).length === 0)}
+            disabled={saving || !designation.trim() || Number(prix) <= 0 || (mode === 'single' ? (!newFile && (!isEdit || existingPhotos.length === 0)) : bulkFiles.length === 0)}
             className="w-full bg-[#8B1E3F] text-[#FFF9F3] py-3 rounded-full font-medium tracking-wide hover:bg-[#6E1732] transition-colors disabled:opacity-60"
           >
             {saving ? 'Enregistrement…' : isEdit ? 'Enregistrer les modifications' : mode === 'bulk' ? 'Ajouter le lot de pagnes' : 'Ajouter le pagne'}
